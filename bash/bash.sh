@@ -14,25 +14,34 @@ wins=(
     0 4 8
     2 4 6
 )
+save_file="save_file.txt"
 
 main_menu() {
     echo "Witaj w grze w kółko i krzyżyk:"
     echo "1) Nowa gra dwuosobowa"
-    echo "2) Wyjdź z gry"
+    echo "2) Wczytaj grę"
+    echo "3) Wyjdź z gry"
     echo ""
     
-    read -p "Wybierz opcję (1-2): " -r option
+    read -p "Wybierz opcję (1-3): " -r option
     case "$option" in
         1)
             initialize_game
             game_loop
             ;;
         2)
+            if load_game; then
+                game_loop
+            else
+                main_menu
+            fi
+            ;;
+        3)
             exit 0
             ;;
         *)
             echo "Błędna opcja"
-            echo " "
+            echo ""
             main_menu
             ;;
     esac
@@ -64,7 +73,6 @@ game_loop() {
                 break
             fi
         done
-        
         if [[ "$is_player_win" == true ]]; then
             print_board
             echo "Gracz $current_player wygrywa!"
@@ -78,7 +86,6 @@ game_loop() {
                 break
             fi
         done
-        
         if [[ "$is_draw" == true ]]; then
             print_board
             echo "Remis!"
@@ -89,10 +96,10 @@ game_loop() {
     done
 
     echo "Koniec gry!"
-    echo " "
+    echo ""
     read -p "Gramy jeszcze raz? (t/n): " -r option
     if [[ "$option" == "t" ]]; then
-        echo " "
+        echo ""
         main_menu
     else
         exit 0
@@ -112,7 +119,11 @@ print_board() {
 
 player_move() {
     while true; do
-        read -p "Graczu $current_player, podaj pozycję (1-9): " -r move
+        read -p "Graczu $current_player, podaj pozycję (1-9) lub zapisz stan gry (zapisz): " -r move
+        if [[ "$move" == "zapisz" ]]; then
+            save_game
+            continue
+        fi
         if [[ "$move" =~ ^[1-9]$ ]]; then
             local index=$(("$move" - 1))
             if [[ "${board[index]}" != "X" && "${board[index]}" != "O" ]]; then
@@ -120,11 +131,11 @@ player_move() {
                 break
             else
                 echo "Podana pozycja jest już zajęta"
-                echo " "
+                echo ""
             fi
         else
             echo "Zła pozycja. Podaj liczbę od 1 do 9"
-            echo " "
+            echo ""
         fi
     done
 }
@@ -135,6 +146,30 @@ player_switch() {
     else
         current_player="O"
     fi
+}
+
+save_game() {
+    for cell in "${board[@]}"; do
+        echo "$cell"
+    done > "$save_file"
+    echo "$current_player" >> "$save_file"
+    echo "Stan gry zapisany do: $save_file"
+    echo ""
+}
+
+load_game() {
+    if [[ ! -f "$save_file" ]]; then
+        echo "Brak zapisanych stanów gry"
+        echo ""
+        return 1
+    fi
+
+    mapfile -t saved < "$save_file"
+    for i in {0..8}; do
+        board[i]="${saved[i]}"
+    done
+    current_player="${saved[9]}"
+    echo "Wczytano stan gry z $save_file"
 }
 
 main_menu
