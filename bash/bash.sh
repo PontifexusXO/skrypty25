@@ -15,28 +15,36 @@ wins=(
     2 4 6
 )
 save_file="save_file.txt"
+player_1="O"
+player_2="X"
 
 main_menu() {
     echo "Witaj w grze w kółko i krzyżyk:"
     echo "1) Nowa gra dwuosobowa"
-    echo "2) Wczytaj grę"
-    echo "3) Wyjdź z gry"
+    echo "2) Nowa gra z komputerem"
+    echo "3) Wczytaj grę"
+    echo "4) Wyjdź z gry"
     echo ""
     
-    read -p "Wybierz opcję (1-3): " -r option
+    read -p "Wybierz opcję (1-4): " -r option
     case "$option" in
         1)
             initialize_game
             game_loop
             ;;
         2)
+            initialize_game
+            is_ai_game=true
+            game_loop
+            ;;
+        3)
             if load_game; then
                 game_loop
             else
                 main_menu
             fi
             ;;
-        3)
+        4)
             exit 0
             ;;
         *)
@@ -53,15 +61,20 @@ initialize_game() {
         "4" "5" "6"
         "7" "8" "9"
     )
-    current_player="O"
+    current_player="$player_1"
     is_player_win=false
     is_draw=false
+    is_ai_game=false
 }
 
 game_loop() {
     while true; do
         print_board
-        player_move
+        if [[ "$is_ai_game" == true && "$current_player" == "$player_2" ]]; then
+            ai_move
+        else
+            player_move
+        fi
         
         for ((i = 0; i < ${#wins[@]}; i += 3)); do
             local a=${wins[i]}
@@ -81,7 +94,7 @@ game_loop() {
         
         is_draw=true
         for cell in "${board[@]}"; do
-            if [[ "$cell" != "X" && "$cell" != "O" ]]; then
+            if [[ "$cell" != "$player_2" && "$cell" != "$player_1" ]]; then
                 is_draw=false
                 break
             fi
@@ -124,27 +137,91 @@ player_move() {
             save_game
             continue
         fi
-        if [[ "$move" =~ ^[1-9]$ ]]; then
-            local index=$(("$move" - 1))
-            if [[ "${board[index]}" != "X" && "${board[index]}" != "O" ]]; then
-                board[index]="$current_player"
-                break
-            else
-                echo "Podana pozycja jest już zajęta"
-                echo ""
-            fi
-        else
+        if ! [[ "$move" =~ ^[1-9]$ ]]; then
             echo "Zła pozycja. Podaj liczbę od 1 do 9"
+            echo ""
+            continue
+        fi
+        
+        local index=$(("$move" - 1))
+        if [[ "${board[index]}" != "$player_2" && "${board[index]}" != "$player_1" ]]; then
+            board[index]="$current_player"
+            break
+        else
+            echo "Podana pozycja jest już zajęta"
             echo ""
         fi
     done
 }
 
+ai_move() {
+    echo "Ruch komputera..."
+    local possible_moves=()
+
+    for ((i = 0; i < ${#wins[@]}; i += 3)); do
+        local a=${wins[i]}
+        local b=${wins[i+1]}
+        local c=${wins[i+2]}
+        
+        if [[ "${board[a]}" == "$player_1" && "${board[b]}" == "$player_1" && "${board[c]}" != "$player_1" && "${board[c]}" != "$player_2" ]]; then
+            possible_moves+=( "$c" )
+            break
+        elif [[ "${board[a]}" == "$player_1" && "${board[c]}" == "$player_1" && "${board[b]}" != "$player_1" && "${board[b]}" != "$player_2" ]]; then
+            possible_moves+=( "$b" )
+            break
+        elif [[ "${board[b]}" == "$player_1" && "${board[c]}" == "$player_1" && "${board[a]}" != "$player_1" && "${board[a]}" != "$player_2" ]]; then
+            possible_moves+=( "$a" )
+            break
+        fi
+    done
+    if [[ ${#possible_moves[@]} != 0 ]]; then
+        board[possible_moves[0]]="$current_player"
+        return 0
+    fi
+    
+    local strategic_moves=( 0 2 4 6 8 )
+    for index in "${strategic_moves[@]}"; do
+        if [[ "${board[$index]}" != "$player_1" && "${board[$index]}" != "$player_2" ]]; then
+            possible_moves+=( "$index" )
+        fi
+    done
+    if [[ ${#possible_moves[@]} != 0 ]]; then
+        local picked_cell="${possible_moves[$((RANDOM % ${#possible_moves[@]}))]}"
+        board["$picked_cell"]="$current_player"
+        return 0
+    fi
+
+    for ((i = 0; i < ${#wins[@]}; i += 3)); do
+        local a=${wins[i]}
+        local b=${wins[i+1]}
+        local c=${wins[i+2]}
+        
+        if [[ "${board[a]}" != "$player_1" && "${board[b]}" != "$player_1" && "${board[c]}" != "$player_1" ]]; then
+            [[ "${board[a]}" != "$player_2" ]] && possible_moves+=( "$a" )
+            [[ "${board[b]}" != "$player_2" ]] && possible_moves+=( "$b" )
+            [[ "${board[c]}" != "$player_2" ]] && possible_moves+=( "$c" )
+        fi
+    done
+    if [[ ${#possible_moves[@]} != 0 ]]; then
+        local picked_cell="${possible_moves[$((RANDOM % ${#possible_moves[@]}))]}"
+        board["$picked_cell"]="$current_player"
+        return 0
+    fi
+    
+    for index in "${!board[@]}"; do
+        if [[ "${board[$index]}" != "$player_1"  && "${board[$index]}" != "$player_2" ]]; then
+            possible_moves+=( "$index" )
+        fi
+    done
+    local picked_cell="${possible_moves[$((RANDOM % ${#possible_moves[@]}))]}"
+    board["$picked_cell"]="$current_player"
+}
+
 player_switch() {
-    if [[ "$current_player" == "O" ]]; then
-        current_player="X"
+    if [[ "$current_player" == "$player_1" ]]; then
+        current_player="$player_2"
     else
-        current_player="O"
+        current_player="$player_1"
     fi
 }
 
@@ -153,6 +230,7 @@ save_game() {
         echo "$cell"
     done > "$save_file"
     echo "$current_player" >> "$save_file"
+    echo "$is_ai_game" >> "$save_file"
     echo "Stan gry zapisany do: $save_file"
     echo ""
 }
@@ -163,12 +241,14 @@ load_game() {
         echo ""
         return 1
     fi
-
+    
+    initialize_game
     mapfile -t saved < "$save_file"
     for i in {0..8}; do
         board[i]="${saved[i]}"
     done
     current_player="${saved[9]}"
+    is_ai_game="${saved[10]}"
     echo "Wczytano stan gry z $save_file"
 }
 
