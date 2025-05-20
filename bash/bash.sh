@@ -158,6 +158,29 @@ ai_move() {
     echo "Ruch komputera..."
     local possible_moves=()
 
+    # Sprawdź czy istnieje wygrywający ruch
+    for ((i = 0; i < ${#wins[@]}; i += 3)); do
+        local a=${wins[i]}
+        local b=${wins[i+1]}
+        local c=${wins[i+2]}
+        
+        if [[ "${board[a]}" == "$player_2" && "${board[b]}" == "$player_2" && "${board[c]}" != "$player_2" && "${board[c]}" != "$player_1" ]]; then
+            possible_moves+=( "$c" )
+            break
+        elif [[ "${board[a]}" == "$player_2" && "${board[c]}" == "$player_2" && "${board[b]}" != "$player_2" && "${board[b]}" != "$player_1" ]]; then
+            possible_moves+=( "$b" )
+            break
+        elif [[ "${board[b]}" == "$player_2" && "${board[c]}" == "$player_2" && "${board[a]}" != "$player_2" && "${board[a]}" != "$player_1" ]]; then
+            possible_moves+=( "$a" )
+            break
+        fi
+    done
+    if [[ ${#possible_moves[@]} != 0 ]]; then
+        board[possible_moves[0]]="$current_player"
+        return 0
+    fi
+
+    # Sprawdź czy gracz zaraz może wygrać (zablokuj go)
     for ((i = 0; i < ${#wins[@]}; i += 3)); do
         local a=${wins[i]}
         local b=${wins[i+1]}
@@ -178,19 +201,8 @@ ai_move() {
         board[possible_moves[0]]="$current_player"
         return 0
     fi
-    
-    local strategic_moves=( 0 2 4 6 8 )
-    for index in "${strategic_moves[@]}"; do
-        if [[ "${board[$index]}" != "$player_1" && "${board[$index]}" != "$player_2" ]]; then
-            possible_moves+=( "$index" )
-        fi
-    done
-    if [[ ${#possible_moves[@]} != 0 ]]; then
-        local picked_cell="${possible_moves[$((RANDOM % ${#possible_moves[@]}))]}"
-        board["$picked_cell"]="$current_player"
-        return 0
-    fi
 
+    # Wykonaj losowy ruch z możliwej puli "wygrywalnych" ruchów
     for ((i = 0; i < ${#wins[@]}; i += 3)); do
         local a=${wins[i]}
         local b=${wins[i+1]}
@@ -208,6 +220,7 @@ ai_move() {
         return 0
     fi
     
+    # Wykonaj losowy ruch
     for index in "${!board[@]}"; do
         if [[ "${board[$index]}" != "$player_1"  && "${board[$index]}" != "$player_2" ]]; then
             possible_moves+=( "$index" )
