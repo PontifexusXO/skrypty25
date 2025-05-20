@@ -48,10 +48,9 @@ Kod: [**ruby**](https://github.com/PontifexusXO/skrypty25/tree/main/ruby)
 e-sportowego: [**commit 1**]()  
 ❌ 3.5 - Bot wyświetla listę dostępnych rozgrywek: [**commit 2**]()  
 ❌ 4.0 - Bot dodaje zawodnika do rozgrywki: [**commit 3**]()  
-❌ 4.5 - Bot potwierdza dodanie zawodnika wraz z numerem oraz szczegółami: [**commit 4**]()  
-turnieju: [**commit 5**]()  
+❌ 4.5 - Bot potwierdza dodanie zawodnika wraz z numerem oraz szczegółami turnieju: [**commit 4**]()  
 ❌ 5.0 - Bot wyświetla wszystkie drużyny, stan rozgrywek oraz wszystkich
-zawodników w rozgrywkach: [**commit 6**]()  
+zawodników w rozgrywkach: [**commit 5**]()  
 
 Kod: [**python**](https://github.com/PontifexusXO/skrypty25/tree/main/python)  
 
