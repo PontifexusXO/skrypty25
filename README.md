@@ -1,7 +1,7 @@
 ### Zadanie 1 (Bash) - Kółko i krzyżyk
 ✅ 3.0 - działa w trybie gry turowej: [**commit 1**](https://github.com/PontifexusXO/skrypty25/commit/b37dd1a14ab3949420c22d9fb9d0793452a4294a)  
 ✅ 4.0 - pozwala na zapis i odtwarzanie przerwanej gry (save game): [**commit 2**](https://github.com/PontifexusXO/skrypty25/commit/4acedca4fa6578a70bc7b5acd243157262ec4ed0)  
-✅ 5.0 - pozwala na grę z komputerem: [**commit 3**](https://github.com/PontifexusXO/skrypty25/commit/b55df321f2e407104be6f12eeb7455b75fe50cf6)  
+✅ 5.0 - pozwala na grę z komputerem: [**commit 3**](https://github.com/PontifexusXO/skrypty25/commit/b55df321f2e407104be6f12eeb7455b75fe50cf6) + [**commit 4**](https://github.com/PontifexusXO/skrypty25/commit/bd35a31340c88cbd9725c0394b4f2b4765de8276)  
 
 Kod: [**bash**](https://github.com/PontifexusXO/skrypty25/tree/main/bash)  
 
