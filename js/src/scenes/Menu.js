@@ -16,7 +16,7 @@ export class Menu extends Phaser.Scene {
             fill: '#ffffff'
         }).setOrigin(0.5)
 
-        this.startButton = this.add.text(this.scale.width / 2, this.scale.height / 2 + 10, 'Start Game', {
+        this.startButton = this.add.text(this.scale.width / 2, this.scale.height / 2 + 10, 'Choose Level', {
             fontSize: '32px',
             fill: '#000000',
             backgroundColor: '#ffffff',
@@ -30,7 +30,7 @@ export class Menu extends Phaser.Scene {
         .on('pointerout', () => this.startButton.setStyle({ backgroundColor: '#ffffff' }))
 
         this.startButton.on('pointerup', () => {
-            this.scene.start('Scene')
+            this.scene.start('LevelSelect')
         })
     }
 

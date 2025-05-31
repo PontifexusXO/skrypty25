@@ -3,6 +3,7 @@
 // ------------------------------------------
 
 import { Menu } from './scenes/Menu.js'
+import { LevelSelect } from './scenes/LevelSelect.js'
 import { Scene } from './scenes/Scene.js'
 import { Result } from './scenes/Result.js'
 
@@ -16,6 +17,7 @@ const config = {
     pixelArt: true,
     scene: [
         Menu,
+        LevelSelect,
         Scene,
         Result
     ],

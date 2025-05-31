@@ -5,6 +5,10 @@ export class Scene extends Phaser.Scene {
         this.UNIT = 48
     }
 
+    init(data) {
+        this.levelKey = data.levelKey
+    }
+
     preload() {
         this.load.spritesheet('player', 
             'assets/player.png',
@@ -17,6 +21,7 @@ export class Scene extends Phaser.Scene {
         this.load.image('solid', 'assets/bricks.png')
         this.load.image('flag', 'assets/flag.png')
         this.load.image('key', 'assets/key.png')
+        this.load.json(this.levelKey, `levels/${this.levelKey}.json`)
     }
 
     create() {
@@ -44,75 +49,26 @@ export class Scene extends Phaser.Scene {
         this.player = this.physics.add.sprite(0, 0, 'player')
         this.cameras.main.startFollow(this.player)
 
+        this.anims.create({
+            key: 'enemyMove',
+            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 3 }),
+            frameRate: 8,
+            repeat: -1
+        })
+
         this.scoreText = this.add.text(this.scale.width / 2, 80, `Score: ${this.score} | Lives: ${this.lives}`, {
             fontSize: '20px',
             fill: '#ffffff'
-        }).setOrigin(0.5)
-        this.scoreText.setScrollFactor(0)
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
 
         this.add.text(0, this.scale.height / 2 - 10, 'Use Arrow Keys to Move and Jump', {
             fontSize: '20px',
             fill: '#ffffff'
         }).setOrigin(0.5)
 
-        this.platforms = this.physics.add.staticGroup()
-        this.addPlatform([-2, 10], [10, 1], 'solid')
-        this.addPlatform([8, 8], [1, 3], 'solid')
-        this.addPlatform([9, 8], [4, 1], 'solid')
-        this.addPlatform([13, 8], [1, 7], 'solid')
-        this.addPlatform([13, 15], [3, 1], 'solid')
-        this.addPlatform([20, 15], [12, 1], 'solid')
-        this.addPlatform([32, 14], [1, 2], 'solid')
-        this.addPlatform([28, 13], [2, 1], 'solid')
-        this.addPlatform([20, 11], [2, 1], 'solid')
-        this.addPlatform([25, 11], [2, 1], 'solid')
-        this.addPlatform([29, 9], [2, 1], 'solid')
-        this.addPlatform([32, 7], [3, 1], 'solid')
-        this.addPlatform([51, 15], [6, 1], 'solid')
-        this.addPlatform([56, 7], [1, 8], 'solid')
-
-        this.mPlatform_1 = this.physics.add.staticGroup()
-        this.mPlatform_1 = this.physics.add.sprite(40 * this.UNIT, 7 * this.UNIT, 'solid')
-        .setScale(1, 1)
-        .setOrigin(0)
-        .setImmovable(true)
-        this.mPlatform_1.body.allowGravity = false
-        this.mPlatform_1.setVelocityX(200)
-
-        this.keys = this.physics.add.staticGroup()
-        this.addKey(-2, 9)
-        this.addKey(10, 7)
-        this.addKey(18, 11)
-        this.addKey(14, 14)
-        this.addKey(20, 10)
-        this.addKey(34, 10)
-        this.addKey(50, 7)
-
-        this.anims.create({
-            key: 'enemyMove',
-            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
-        })
-        this.enemies = this.physics.add.group()
-        this.createEnemy(4, 8)
-        this.createEnemy(10, 7.5)
-        this.createEnemy(28, 10)
-        this.createEnemy(28, 13)
-
-        this.flag = this.physics.add.staticGroup()
-        this.flag.create(53 * this.UNIT, 13 * this.UNIT, 'flag')
-        .setOrigin(0)
-        .refreshBody()
-
-        this.physics.add.collider(this.player, this.platforms)
-        this.physics.add.collider(this.player, this.mPlatform_1)
-        this.physics.add.overlap(this.player, this.flag, () => {
-            this.scene.start('Result', { score: this.score, result: "YOU WON"})
-        }, null, this)
-        this.physics.add.overlap(this.player, this.keys, this.collectKey, null, this)
-        this.physics.add.collider(this.player, this.enemies, this.enemyContact, null, this)
-        this.physics.add.collider(this.enemies, this.platforms)
+        this.loadLevel('level1')
     }
 
     update() {
@@ -148,25 +104,12 @@ export class Scene extends Phaser.Scene {
                 this.cameras.main.startFollow(this.player)
             }
             else {
-                this.scene.start('Result', { score: this.score, result: "YOU LOST"})
+                this.scene.start('Result', { score: this.score, result: 'YOU LOST'})
             }
         }
         if (this.player.y > this.scale.height) {
             this.player.setVelocityX(0)
             this.cameras.main.stopFollow()
-        }
-
-        if (this.mPlatform_1.x >= 45 * this.UNIT) {
-            this.mPlatform_1.setVelocityX(-200)
-            if (this.player.body.touching.down && this.mPlatform_1.body.touching.up) {
-                this.player.setVelocityX(-200)
-            }
-        } 
-        else if (this.mPlatform_1.x <= 38 * this.UNIT) {
-            this.mPlatform_1.setVelocityX(200)
-            if (this.player.body.touching.down && this.mPlatform_1.body.touching.up) {
-                this.player.setVelocityX(200)
-            }
         }
 
         this.enemies.children.iterate((enemy) => {
@@ -184,27 +127,31 @@ export class Scene extends Phaser.Scene {
                 enemy.toggleFlipX()
             }
             if (enemy.body.blocked.left) {
-                enemy.setVelocityX(100)
+                enemy.setVelocityX(150)
                 enemy.flipX = false
             }
             else if (enemy.body.blocked.right) {
-                enemy.setVelocityX(-100)
+                enemy.setVelocityX(-150)
                 enemy.flipX = true
             }
         })
-    }
 
-    addPlatform(position = [1, 1], scale = [1, 1], sprite) {
-        this.platforms.create(position[0] * this.UNIT, position[1] * this.UNIT, sprite)
-        .setScale(scale[0], scale[1])
-        .setOrigin(0)
-        .refreshBody()
-    }
+        this.mPlatforms.children.iterate((platform) => {
+            if (platform.x >= platform.getData('originalX') + 3 * this.UNIT) {
+                platform.setVelocityX(-200)
 
-    addKey(x, y) {
-        this.keys.create(x * this.UNIT, y * this.UNIT, 'key')
-        .setOrigin(0)
-        .refreshBody()
+            } 
+            else if (platform.x <= platform.getData('originalX') - 3 * this.UNIT) {
+                platform.setVelocityX(200)
+            }
+            if (this.player.body.blocked.down &&
+                platform.body.touching.up &&
+                Phaser.Geom.Intersects.RectangleToRectangle(
+                this.player.getBounds(),
+                platform.getBounds())) {
+                    this.player.body.velocity.x += platform.body.velocity.x
+                }
+        })
     }
 
     collectKey(_, key) {
@@ -213,31 +160,104 @@ export class Scene extends Phaser.Scene {
         this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
     }
 
-    createEnemy(x, y) {
-        let enemy = this.enemies.create(x * this.UNIT, y * this.UNIT, 'enemy')
-        .setVelocityX(50)
-        enemy.anims.play('enemyMove', true)
-    }
-
     enemyContact(player, enemy) {
-        if (player.body.velocity.y > 0 && player.y < enemy.y) {
-            enemy.destroy()
-            player.setVelocityY(-300)
-            this.score += 20
-            this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
+        if (player.body.velocity.y > 0 &&
+            player.body.bottom <= enemy.body.top + 10 &&
+            player.body.right > enemy.body.left &&
+            player.body.left < enemy.body.right) {
+                enemy.destroy()
+                player.setVelocityY(-300)
+                this.score += 20
+                this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
         }
         else {
             enemy.toggleFlipX()
+            if (enemy.flipX) {
+                enemy.setVelocityX(-150)
+            }
+            else {
+                enemy.setVelocityX(150)
+            }
+
             this.lives -= 1
             if (this.lives <= 0){
-                this.scene.start('Result', { score: this.score, result: "YOU LOST"})
+                this.scene.start('Result', { score: this.score, result: 'YOU LOST'})
             }
+
             this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
             this.player.setVelocityX(0)
             this.player.setVelocityY(0)
             this.player.setPosition(0, 0)
             this.cameras.main.startFollow(this.player)
         }
+    }
+
+    addPlatform(position = [1, 1], scale = [1, 1]) {
+        this.platforms.create(position[0] * this.UNIT, position[1] * this.UNIT, 'solid')
+        .setScale(scale[0], scale[1])
+        .setOrigin(0)
+        .refreshBody()
+    }
+
+    addMovingPlatform(position = [1, 1], scale = [1, 1]) {
+        this.mPlatforms.create(position[0] * this.UNIT, position[1] * this.UNIT, 'solid')
+        .setScale(scale[0], scale[1])
+        .setOrigin(0)
+        .setImmovable(true)
+        .setVelocityX(200)
+        .setData('originalX', position[0] * this.UNIT)
+        .body.allowGravity = false
+    }
+
+    addKey(position = [1, 1]) {
+        this.keys.create(position[0] * this.UNIT, position[1] * this.UNIT, 'key')
+        .setOrigin(0)
+        .refreshBody()
+    }
+
+    addEnemy(position = [1, 1]) {
+        let enemy = this.enemies.create(position[0] * this.UNIT, position[1]* this.UNIT, 'enemy').setVelocityX(150)
+        enemy.anims.play('enemyMove', true)
+    }
+
+    loadLevel(levelKey) {
+        const levelData = this.cache.json.get(levelKey)
+
+        this.platforms = this.physics.add.staticGroup()
+        levelData.platforms.forEach(p => {
+            this.addPlatform(p.position, p.scale)
+        })
+
+        this.mPlatforms = this.physics.add.group()
+        levelData.movingPlatforms.forEach(m => {
+            this.addMovingPlatform(m.position, m.scale)
+        })
+
+        this.keys = this.physics.add.staticGroup()
+        levelData.keys.forEach(k => {
+            this.addKey(k.position)
+        })
+
+        this.enemies = this.physics.add.group()
+        levelData.enemies.forEach(e => {
+            this.addEnemy(e.position, e.scale)
+        })
+
+        this.flag = this.physics.add.staticGroup()
+        levelData.flag.forEach(f => {
+            this.flag.create(f.position[0] * this.UNIT, f.position[1] * this.UNIT, 'flag')
+            .setOrigin(0)
+            .refreshBody()
+        })
+
+        this.physics.add.collider(this.player, this.platforms)
+        this.physics.add.collider(this.player, this.mPlatforms)
+        this.physics.add.overlap(this.player, this.flag, () => {
+            this.scene.start('Result', { score: this.score, result: 'YOU WON'})
+        }, null, this)
+        this.physics.add.overlap(this.player, this.keys, this.collectKey, null, this)
+        this.physics.add.collider(this.player, this.enemies, this.enemyContact, null, this)
+        this.physics.add.collider(this.enemies, this.platforms)
     }
 
 }
