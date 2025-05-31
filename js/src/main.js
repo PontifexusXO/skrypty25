@@ -4,6 +4,7 @@
 
 import { Menu } from './scenes/Menu.js'
 import { Scene } from './scenes/Scene.js'
+import { Result } from './scenes/Result.js'
 
 const config = {
     type: Phaser.AUTO,
@@ -15,7 +16,8 @@ const config = {
     pixelArt: true,
     scene: [
         Menu,
-        Scene
+        Scene,
+        Result
     ],
     scale: {
         mode: Phaser.Scale.FIT,

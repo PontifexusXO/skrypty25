@@ -10,6 +10,10 @@ export class Scene extends Phaser.Scene {
             'assets/player.png',
             { frameWidth: 24, frameHeight: this.UNIT }
         )
+        this.load.spritesheet('enemy', 
+            'assets/enemy.png',
+            { frameWidth: 30, frameHeight: 47 }
+        )
         this.load.image('solid', 'assets/bricks.png')
         this.load.image('flag', 'assets/flag.png')
         this.load.image('key', 'assets/key.png')
@@ -17,8 +21,8 @@ export class Scene extends Phaser.Scene {
 
     create() {
         this.score = 0
+        this.lives = 3
         this.controlKeys = this.input.keyboard.createCursorKeys()
-        this.inputEnabled = true
 
         this.anims.create({
             key: 'idle',
@@ -37,11 +41,10 @@ export class Scene extends Phaser.Scene {
             frames: [{ key: 'player', frame: 2 }],
             frameRate: 10
         })
-        this.player = this.physics.add.sprite(0, 0, 'player').setBounce(0)
+        this.player = this.physics.add.sprite(0, 0, 'player')
         this.cameras.main.startFollow(this.player)
-        this.cameras.main.setLerp(1, 1)
 
-        this.scoreText = this.add.text(this.scale.width / 2, 80, `Score: ${this.score}`, {
+        this.scoreText = this.add.text(this.scale.width / 2, 80, `Score: ${this.score} | Lives: ${this.lives}`, {
             fontSize: '20px',
             fill: '#ffffff'
         }).setOrigin(0.5)
@@ -70,9 +73,9 @@ export class Scene extends Phaser.Scene {
 
         this.mPlatform_1 = this.physics.add.staticGroup()
         this.mPlatform_1 = this.physics.add.sprite(40 * this.UNIT, 7 * this.UNIT, 'solid')
-            .setScale(1, 1)
-            .setOrigin(0)
-            .setImmovable(true)
+        .setScale(1, 1)
+        .setOrigin(0)
+        .setImmovable(true)
         this.mPlatform_1.body.allowGravity = false
         this.mPlatform_1.setVelocityX(200)
 
@@ -85,6 +88,18 @@ export class Scene extends Phaser.Scene {
         this.addKey(34, 10)
         this.addKey(50, 7)
 
+        this.anims.create({
+            key: 'enemyMove',
+            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        })
+        this.enemies = this.physics.add.group()
+        this.createEnemy(4, 8)
+        this.createEnemy(10, 7.5)
+        this.createEnemy(28, 10)
+        this.createEnemy(28, 13)
+
         this.flag = this.physics.add.staticGroup()
         this.flag.create(53 * this.UNIT, 13 * this.UNIT, 'flag')
         .setOrigin(0)
@@ -92,49 +107,53 @@ export class Scene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.platforms)
         this.physics.add.collider(this.player, this.mPlatform_1)
-        this.physics.add.overlap(this.player, this.flag, this.winGame, null, this)
+        this.physics.add.overlap(this.player, this.flag, () => {
+            this.scene.start('Result', { score: this.score, result: "YOU WON"})
+        }, null, this)
         this.physics.add.overlap(this.player, this.keys, this.collectKey, null, this)
+        this.physics.add.collider(this.player, this.enemies, this.enemyContact, null, this)
+        this.physics.add.collider(this.enemies, this.platforms)
     }
 
     update() {
-        this.player.setVelocityX(0)
-
-        if (this.inputEnabled) {
-            if (this.controlKeys.left.isDown) {
-                this.player.flipX = true
-                this.player.setVelocityX(-200)
-                this.player.anims.play('move', true)
-            }
-            else if (this.controlKeys.right.isDown) {
-                this.player.flipX = false
-                this.player.setVelocityX(200)
-                this.player.anims.play('move', true)
-            }
-            else {
-                this.player.setVelocityX(0)
-                this.player.anims.play('idle', true)
-            }
-
-            if (this.controlKeys.up.isDown && this.player.body.blocked.down) {
-                this.player.setVelocityY(-480)
-                this.player.anims.play('air', true)
-            }
+        if (this.controlKeys.left.isDown) {
+            this.player.flipX = true
+            this.player.setVelocityX(-200)
+            this.player.anims.play('move', true)
         }
-
-        if (!this.player.body.blocked.down) {
-            this.player.anims.play('air', true)
+        else if (this.controlKeys.right.isDown) {
+            this.player.flipX = false
+            this.player.setVelocityX(200)
+            this.player.anims.play('move', true)
         }
-        else if (!this.inputEnabled) {
+        else {
             this.player.setVelocityX(0)
             this.player.anims.play('idle', true)
         }
+        if (this.controlKeys.up.isDown && this.player.body.blocked.down) {
+            this.player.setVelocityY(-480)
+            this.player.anims.play('air', true)
+        }
+        if (!this.player.body.blocked.down) {
+            this.player.anims.play('air', true)
+        }
 
         if (this.player.y > this.scale.height * 2) {
-            this.scene.restart()
+            this.lives -= 1
+            if (this.lives > 0) {
+                this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
+                this.player.setVelocityX(0)
+                this.player.setVelocityY(0)
+                this.player.setPosition(0, 0)
+                this.cameras.main.startFollow(this.player)
+            }
+            else {
+                this.scene.start('Result', { score: this.score, result: "YOU LOST"})
+            }
         }
         if (this.player.y > this.scale.height) {
             this.player.setVelocityX(0)
-            this.cameras.main.stopFollow();
+            this.cameras.main.stopFollow()
         }
 
         if (this.mPlatform_1.x >= 45 * this.UNIT) {
@@ -149,6 +168,30 @@ export class Scene extends Phaser.Scene {
                 this.player.setVelocityX(200)
             }
         }
+
+        this.enemies.children.iterate((enemy) => {
+            const aheadX = enemy.body.velocity.x > 0 ? enemy.x + 10 : enemy.x - 10
+            const aheadY = enemy.y + enemy.height / 2 + 1
+            const groundAhead = this.platforms.getChildren().some(platform => {
+                return Phaser.Geom.Intersects.RectangleToRectangle(
+                    new Phaser.Geom.Rectangle(aheadX, aheadY, 2, 2),
+                    platform.getBounds()
+                )
+            })
+
+            if (!groundAhead) {
+                enemy.setVelocityX(-enemy.body.velocity.x)
+                enemy.toggleFlipX()
+            }
+            if (enemy.body.blocked.left) {
+                enemy.setVelocityX(100)
+                enemy.flipX = false
+            }
+            else if (enemy.body.blocked.right) {
+                enemy.setVelocityX(-100)
+                enemy.flipX = true
+            }
+        })
     }
 
     addPlatform(position = [1, 1], scale = [1, 1], sprite) {
@@ -167,22 +210,34 @@ export class Scene extends Phaser.Scene {
     collectKey(_, key) {
         key.destroy()
         this.score += 10
-        this.scoreText.setText(`Score: ${this.score}`)
+        this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
     }
 
-    winGame() {
-        this.text = this.add.text(53 * this.UNIT, 12 * this.UNIT, 'YOU WON!', {
-            fontSize: '48px',
-            fill: '#ffffff'
-        }).setOrigin(0.5)
+    createEnemy(x, y) {
+        let enemy = this.enemies.create(x * this.UNIT, y * this.UNIT, 'enemy')
+        .setVelocityX(50)
+        enemy.anims.play('enemyMove', true)
+    }
 
-        this.cameras.main.stopFollow()
-        this.inputEnabled = false
-        this.player.setVelocityX(0)
-
-        this.time.delayedCall(3000, () => {
-            this.scene.start('Menu')
-        })
+    enemyContact(player, enemy) {
+        if (player.body.velocity.y > 0 && player.y < enemy.y) {
+            enemy.destroy()
+            player.setVelocityY(-300)
+            this.score += 20
+            this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
+        }
+        else {
+            enemy.toggleFlipX()
+            this.lives -= 1
+            if (this.lives <= 0){
+                this.scene.start('Result', { score: this.score, result: "YOU LOST"})
+            }
+            this.scoreText.setText(`Score: ${this.score} | Lives: ${this.lives}`)
+            this.player.setVelocityX(0)
+            this.player.setVelocityY(0)
+            this.player.setPosition(0, 0)
+            this.cameras.main.startFollow(this.player)
+        }
     }
 
 }

@@ -1,22 +1,27 @@
-export class Menu extends Phaser.Scene {
-    
+export class Result extends Phaser.Scene {
+
     constructor() {
-        super('Menu')
+        super('Result')
+    }
+
+    init(data) {
+        this.score = data.score
+        this.result = data.result
     }
 
     create() {
-        this.text = this.add.text(this.scale.width / 2, this.scale.height / 2 - 100, 'MarioJS', {
+        this.text = this.add.text(this.scale.width / 2, this.scale.height / 2 - 100, this.result, {
             fontSize: '48px',
             strokeThickness: 2,
             fill: '#ffffff'
         }).setOrigin(0.5)
 
-        this.author = this.add.text(this.scale.width / 2, this.scale.height / 2 - 70, 'by Arkadiusz Adamczyk', {
-            fontSize: '16px',
+        this.author = this.add.text(this.scale.width / 2, this.scale.height / 2 - 50, `Your score: ${this.score}`, {
+            fontSize: '30px',
             fill: '#ffffff'
         }).setOrigin(0.5)
 
-        this.startButton = this.add.text(this.scale.width / 2, this.scale.height / 2 + 10, 'Start Game', {
+        this.startButton = this.add.text(this.scale.width / 2, this.scale.height / 2 + 10, 'Menu', {
             fontSize: '32px',
             fill: '#000000',
             backgroundColor: '#ffffff',
@@ -30,7 +35,7 @@ export class Menu extends Phaser.Scene {
         .on('pointerout', () => this.startButton.setStyle({ backgroundColor: '#ffffff' }))
 
         this.startButton.on('pointerup', () => {
-            this.scene.start('Scene')
+            this.scene.start('Menu')
         })
     }
 
