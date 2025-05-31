@@ -11,14 +11,12 @@ export class Menu extends Phaser.Scene {
             fontSize: '48px',
             strokeThickness: 2,
             fill: '#ffffff'
-        })
-        .setOrigin(0.5)
+        }).setOrigin(0.5)
 
         this.author = this.add.text(this.scale.width / 2, this.scale.height / 2 - 70, 'by Arkadiusz Adamczyk', {
             fontSize: '16px',
             fill: '#ffffff'
-        })
-        .setOrigin(0.5)
+        }).setOrigin(0.5)
 
         this.startButton = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Start Game', {
             fontSize: '32px',
