@@ -8,12 +8,12 @@ Kod: [**bash**](https://github.com/PontifexusXO/skrypty25/tree/main/bash)
 ---
 
 ### Zadanie 2 (JS) - Mario w PhaserJS
-❌ 3.0 - Należy stworzyć jeden poziom z przeszkodami oraz dziurami w które
-można wpaść i zginąć: [**commit 1**]()  
-❌ 3.5 - Należy dodać opcję zbierania punktów: [**commit 2**]()  
-❌ 4.0 - Należy dodać przeciwników, których można zabić oraz 3 życia: [**commit 3**]()  
-❌ 4.5 - Ładowanie poziomów z pliku: [**commit 4**]()  
-❌ 5.0 - Generator poziomów: [**commit 5**]()  
+✅ 3.0 - Należy stworzyć jeden poziom z przeszkodami oraz dziurami w które
+można wpaść i zginąć: [**commit 1**](https://github.com/PontifexusXO/skrypty25/commit/1d9ac20ef44f32eecbafc21243220b82f31a9c80)  
+✅ 3.5 - Należy dodać opcję zbierania punktów: [**commit 2**](https://github.com/PontifexusXO/skrypty25/commit/3b40acd8f2bb8accf7ffdb2c4e7527b4b74b317c)  
+✅ 4.0 - Należy dodać przeciwników, których można zabić oraz 3 życia: [**commit 3**](https://github.com/PontifexusXO/skrypty25/commit/05e5955b1705307fbfe68f080dc0c52c715a7f5c)  
+✅ 4.5 - Ładowanie poziomów z pliku: [**commit 4**](https://github.com/PontifexusXO/skrypty25/commit/9939b2d23bb861ef758c8801503d03d859a186a0)  
+✅ 5.0 - Generator poziomów: [**commit 5**](https://github.com/PontifexusXO/skrypty25/commit/0cbccb309da8aed22741c08cda3b5f0db14dc1d5)  
 
 Kod: [**js**](https://github.com/PontifexusXO/skrypty25/tree/main/js)  
 
