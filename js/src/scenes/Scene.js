@@ -6,7 +6,8 @@ export class Scene extends Phaser.Scene {
     }
 
     init(data) {
-        this.levelKey = data.levelKey
+        this.levelData = data.levelData || null
+        this.levelKey = data.levelKey || null
     }
 
     preload() {
@@ -21,7 +22,9 @@ export class Scene extends Phaser.Scene {
         this.load.image('solid', 'assets/bricks.png')
         this.load.image('flag', 'assets/flag.png')
         this.load.image('key', 'assets/key.png')
-        this.load.json(this.levelKey, `levels/${this.levelKey}.json`)
+        if (this.levelKey != null) {
+            this.load.json(this.levelKey, `levels/${this.levelKey}.json`)
+        }
     }
 
     create() {
@@ -68,7 +71,12 @@ export class Scene extends Phaser.Scene {
             fill: '#ffffff'
         }).setOrigin(0.5)
 
-        this.loadLevel('level1')
+        if (this.levelData) {
+            this.loadLevel(this.levelData)
+        }
+        else if (this.levelKey) {
+            this.loadLevel(this.levelKey)
+        }
     }
 
     update() {
@@ -138,11 +146,11 @@ export class Scene extends Phaser.Scene {
 
         this.mPlatforms.children.iterate((platform) => {
             if (platform.x >= platform.getData('originalX') + 3 * this.UNIT) {
-                platform.setVelocityX(-200)
+                platform.setVelocityX(-150)
 
             } 
             else if (platform.x <= platform.getData('originalX') - 3 * this.UNIT) {
-                platform.setVelocityX(200)
+                platform.setVelocityX(150)
             }
             if (this.player.body.blocked.down &&
                 platform.body.touching.up &&
@@ -221,29 +229,35 @@ export class Scene extends Phaser.Scene {
     }
 
     loadLevel(levelKey) {
-        const levelData = this.cache.json.get(levelKey)
-
+        let levelData = null
+        if (this.levelKey != null) {
+            levelData = this.cache.json.get(levelKey)
+        }
+        else {
+            levelData = levelKey
+        }
         this.platforms = this.physics.add.staticGroup()
+        this.mPlatforms = this.physics.add.group()
+        this.keys = this.physics.add.staticGroup()
+        this.enemies = this.physics.add.group()
+        this.flag = this.physics.add.staticGroup()
+
         levelData.platforms.forEach(p => {
             this.addPlatform(p.position, p.scale)
         })
 
-        this.mPlatforms = this.physics.add.group()
         levelData.movingPlatforms.forEach(m => {
             this.addMovingPlatform(m.position, m.scale)
         })
 
-        this.keys = this.physics.add.staticGroup()
         levelData.keys.forEach(k => {
             this.addKey(k.position)
         })
 
-        this.enemies = this.physics.add.group()
         levelData.enemies.forEach(e => {
             this.addEnemy(e.position, e.scale)
         })
 
-        this.flag = this.physics.add.staticGroup()
         levelData.flag.forEach(f => {
             this.flag.create(f.position[0] * this.UNIT, f.position[1] * this.UNIT, 'flag')
             .setOrigin(0)

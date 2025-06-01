@@ -28,7 +28,7 @@
     { "position": [49, 7] }
   ],
   "enemies": [
-    { "position": [4, 8] },
+    { "position": [6, 8] },
     { "position": [10, 7.5] },
     { "position": [28, 10] },
     { "position": [28, 13] }
