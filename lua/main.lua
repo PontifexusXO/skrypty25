@@ -1,0 +1,245 @@
+-- ------------------------------------------
+-- Tetris w LÖVE ~ Arkadiusz Adamczyk
+-- ------------------------------------------
+
+gridWidth = 10
+gridHeight = 16
+cellSize = 30
+grid = {}
+
+currentPiece = {}
+pieceX = nil
+pieceY = nil
+fallTimer = 0
+fallDelay = 0.5
+clearedLines = 0
+goalLines = 10
+gameState = "menu"
+
+shapes = {
+    {
+        {1,1,1,1}
+    },
+    {
+        {1,1},
+        {1,1} 
+    },
+    {
+        {0,1,0},
+        {1,1,1}
+    },
+    {
+        {1,0},
+        {1,0},
+        {1,1}
+    },
+    {
+        {0,1},
+        {0,1},
+        {1,1}
+    },
+    {
+        {0,1,1},
+        {1,1,0}
+    }
+}
+
+function initGrid()
+    for y = 1, gridHeight do
+        grid[y] = {}
+        for x = 1, gridWidth do
+            grid[y][x] = 0
+        end
+    end
+end
+
+function spawnPiece()
+    currentPiece = shapes[math.random(#shapes)]
+    pieceY = 1
+    pieceX = math.floor((gridWidth - #currentPiece[1]) / 2) + 1
+    if not canMove(0, 0, currentPiece) then
+        gameState = "gameover"
+    end
+end
+
+function lockPiece()
+    for y = 1, #currentPiece do
+        for x = 1, #currentPiece[y] do
+            if currentPiece[y][x] == 1 then
+                local gx = pieceX + x - 1
+                local gy = pieceY + y - 1
+                if gy >= 1 and gx >= 1 and gx <= gridWidth and gy <= gridHeight then
+                    grid[gy][gx] = 1
+                end
+            end
+        end
+    end
+
+    clearLines()
+    spawnPiece()
+end
+
+function canMove(dx, dy, newPiece)
+    newPiece = newPiece or currentPiece
+    for y = 1, #newPiece do
+        for x = 1, #newPiece[y] do
+            if newPiece[y][x] == 1 then
+                local newX = pieceX + x - 1 + dx
+                local newY = pieceY + y - 1 + dy
+                if newX < 1 or newX > gridWidth or newY > gridHeight then
+                    return false
+                end
+                if newY >= 1 and grid[newY][newX] == 1 then
+                    return false
+                end
+            end
+        end
+    end
+
+    return true
+end
+
+function clearLines()
+    local newGrid = {}
+    local lines = 0
+    for y = gridHeight, 1, -1 do
+        local full = true
+        for x = 1, gridWidth do
+            if grid[y][x] == 0 then
+                full = false
+                break
+            end
+        end
+        if full then
+            lines = lines + 1
+        else
+            table.insert(newGrid, 1, grid[y])
+        end
+    end
+
+    for i = 1, lines do
+        local empty = {}
+        for x = 1, gridWidth do
+            table.insert(empty, 0)
+        end
+        table.insert(newGrid, 1, empty)
+    end
+
+    grid = newGrid
+    clearedLines = clearedLines + lines
+end
+
+function rotatePiece()
+    local new = {}
+    for x = 1, #currentPiece[1] do
+        new[x] = {}
+        for y = #currentPiece, 1, -1 do
+            new[x][#currentPiece - y + 1] = currentPiece[y][x]
+        end
+    end
+    if canMove(0, 0, new) then
+        currentPiece = new
+    end
+end
+
+function love.load()
+    love.window.setTitle("TetrisLÖVE")
+    love.window.setMode(gridWidth * cellSize, gridHeight * cellSize)
+    font = love.graphics.newFont(18)
+    love.graphics.setFont(font)
+    math.randomseed(os.time())
+    initGrid()
+    spawnPiece()
+end
+
+function love.update(dt)
+    if gameState == "playing" then
+        fallTimer = fallTimer + dt
+        if fallTimer >= fallDelay then
+            fallTimer = 0
+            if canMove(0, 1) then
+                pieceY = pieceY + 1
+            else
+                lockPiece()
+            end
+        end
+    end
+end
+
+function love.draw()
+    for y = 1, gridHeight do
+        for x = 1, gridWidth do
+            if grid[y][x] == 1 then
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.rectangle("fill", (x - 1) * cellSize, (y - 1) * cellSize, cellSize - 1, cellSize - 1)
+            end
+        end
+    end
+
+    if gameState == "playing" then
+        love.graphics.setColor(1, 0.1, 0.8)
+        for y = 1, #currentPiece do
+            for x = 1, #currentPiece[y] do
+                if currentPiece[y][x] == 1 then
+                    local drawX = (pieceX + x - 2) * cellSize
+                    local drawY = (pieceY + y - 2) * cellSize
+                    love.graphics.rectangle("fill", drawX, drawY, cellSize - 1, cellSize - 1)
+                end
+            end
+        end
+
+        love.graphics.setColor(0, 0, 0, 0.6)
+        love.graphics.rectangle("fill", 0, 25, 300, 30)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("SCORE: " .. clearedLines, 0, 30, gridWidth * cellSize, "center")
+    end
+
+    if gameState == "gameover" then
+        love.graphics.setColor(0, 0, 0, 0.8)
+        love.graphics.rectangle("fill", 0, 0, 300, 600)
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.printf("GAME OVER!", 0, 200, gridWidth * cellSize, "center")
+        love.graphics.printf("PRESS ENTER TO RESTART", 0, 230, gridWidth * cellSize, "center")
+    end
+
+    if gameState == "menu" then
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("TETRIS", 0, 100, gridWidth * cellSize, "center")
+        love.graphics.printf("Arkadiusz Adamczyk", 0, 130, gridWidth * cellSize, "center")
+        love.graphics.printf("ENTER to start", 0, 190, gridWidth * cellSize, "center")
+        love.graphics.printf("LEFT/RIGHT/DOWN to move", 0, 220, gridWidth * cellSize, "center")
+        love.graphics.printf("UP to rotate piece", 0, 250, gridWidth * cellSize, "center")
+    end
+end
+
+function love.keypressed(key)
+    if gameState == "playing" then
+        if key == "left" and canMove(-1, 0) then
+            pieceX = pieceX - 1
+        elseif key == "right" and canMove(1, 0) then
+            pieceX = pieceX + 1
+        elseif key == "down" and canMove(0, 1) then
+            pieceY = pieceY + 1
+        elseif key == "up" then
+            rotatePiece()
+        end
+    end
+
+    if gameState == "gameover" then
+        if key == "return" then
+            initGrid()
+            clearedLines = 0
+            gameState = "playing"
+            spawnPiece()
+        end
+    end
+
+    if gameState == "menu" then
+        if key == "return" then
+            initGrid()
+            clearedLines = 0
+            gameState = "playing"
+            spawnPiece()
+        end
+    end
+end
