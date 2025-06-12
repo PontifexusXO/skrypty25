@@ -351,7 +351,7 @@ function love.keypressed(key)
         end
     end
 
-    if gameState == "gameover" then
+    if gameState == "gameover" or gameState == "menu" then
         if key == "return" then
             initGrid()
             clearedLines = 0
@@ -359,9 +359,40 @@ function love.keypressed(key)
             spawnPiece()
         end
     end
+end
 
-    if gameState == "menu" then
-        if key == "return" then
+function love.touchpressed(id, x, y, dx, dy, pressure)
+    if gameState == "playing" then
+        if isFlashing then
+            return
+        end
+
+        local screenWidth = love.graphics.getWidth()
+        local screenHeight = love.graphics.getHeight()
+
+        if x < screenWidth / 3 then
+            if canMove(-1, 0) then
+                pieceX = pieceX - 1
+                sounds.move:play()
+            end
+        elseif x > 2 * screenWidth / 3 then
+            if canMove(1, 0) then
+                pieceX = pieceX + 1
+                sounds.move:play()
+            end
+        elseif y > screenHeight * 0.7 then
+            if canMove(0, 1) then
+                pieceY = pieceY + 1
+                sounds.move:play()
+            end
+        else
+            rotatePiece()
+        end
+    end
+
+    if gameState == "gameover" or gameState == "menu" then
+        local screenWidth = love.graphics.getWidth()
+        if x > 0 and x < screenWidth then
             initGrid()
             clearedLines = 0
             gameState = "playing"
