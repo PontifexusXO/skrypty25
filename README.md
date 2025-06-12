@@ -20,12 +20,12 @@ Kod: [**js**](https://github.com/PontifexusXO/skrypty25/tree/main/js)
 ---
 
 ### Zadanie 3 (Lua) - Tetris w Löve
-❌ 3.0 - Postawowa wersja dekstopowa z obsługą na klawiaturze - minimum 4
-rodzaje klocków: [**commit 1**]()  
-❌ 3.5 - Zapis i odczyt gier: [**commit 2**]()  
-❌ 4.0 - Dodanie efektów dźwiękowych przy akcjach: [**commit 3**]()  
-❌ 4.5 - Dodanie animacji przy zbijaniu klocków: [**commit 4**]()  
-❌ 5.0 - Wersja na iOS lub Android z implementacją touch zamiast klawiatury: [**commit 5**]()  
+✅ 3.0 - Postawowa wersja dekstopowa z obsługą na klawiaturze - minimum 4
+rodzaje klocków: [**commit 1**](https://github.com/PontifexusXO/skrypty25/commit/56e29096df3797fc0adb6eccdf408549eea60ec6)  
+✅ 3.5 - Zapis i odczyt gier: [**commit 2**](https://github.com/PontifexusXO/skrypty25/commit/811495868ebf2493c8a6766292e3d3ae12a14b42)  
+✅ 4.0 - Dodanie efektów dźwiękowych przy akcjach: [**commit 3**](https://github.com/PontifexusXO/skrypty25/commit/0dc949108fcce6a821ab3b6f34f0423198923552) + [**commit 4**](https://github.com/PontifexusXO/skrypty25/commit/2d8d9483c8f31e0165137bd96e5e09a4545beaaf)  
+✅ 4.5 - Dodanie animacji przy zbijaniu klocków: [**commit 5**](https://github.com/PontifexusXO/skrypty25/commit/d204e5011fc3170dd28bd0c9090ba285c1671b9f)  
+✅ 5.0 - Wersja na iOS lub Android z implementacją touch zamiast klawiatury: [**commit 6**](https://github.com/PontifexusXO/skrypty25/commit/9f782ed982d25bc3b30796b592a0b8b0203b62d4)  
 
 Kod: [**lua**](https://github.com/PontifexusXO/skrypty25/tree/main/lua)  
 
