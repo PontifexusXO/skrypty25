@@ -142,6 +142,54 @@ function rotatePiece()
     end
 end
 
+function saveGame()
+    local saveData = {
+        grid = grid,
+        currentPiece = currentPiece,
+        pieceX = pieceX,
+        pieceY = pieceY,
+        clearedLines = clearedLines,
+        gameState = gameState
+    }
+
+    love.filesystem.write("savegame.lua", "return " .. tableToString(saveData))
+end
+
+function tableToString(tbl)
+    local function serialize(obj)
+        if type(obj) == "number" then
+            return tostring(obj)
+        elseif type(obj) == "string" then
+            return string.format("%q", obj)
+        elseif type(obj) == "table" then
+            local s = "{"
+            for k, v in pairs(obj) do
+                s = s .. "[" .. serialize(k) .. "]=" .. serialize(v) .. ","
+            end
+            return s .. "}"
+        else
+            return "nil"
+        end
+    end
+    return serialize(tbl)
+end
+
+function loadGame()
+    if not love.filesystem.getInfo("savegame.lua") then
+        return
+    end
+
+    local chunk = love.filesystem.load("savegame.lua")
+    local saveData = chunk()
+
+    grid = saveData.grid
+    currentPiece = saveData.currentPiece
+    pieceX = saveData.pieceX
+    pieceY = saveData.pieceY
+    clearedLines = saveData.clearedLines
+    gameState = saveData.gameState
+end
+
 function love.load()
     love.window.setTitle("TetrisLÖVE")
     love.window.setMode(gridWidth * cellSize, gridHeight * cellSize)
@@ -209,6 +257,8 @@ function love.draw()
         love.graphics.printf("ENTER to start", 0, 190, gridWidth * cellSize, "center")
         love.graphics.printf("LEFT/RIGHT/DOWN to move", 0, 220, gridWidth * cellSize, "center")
         love.graphics.printf("UP to rotate piece", 0, 250, gridWidth * cellSize, "center")
+        love.graphics.printf("S to save", 0, 300, gridWidth * cellSize, "center")
+        love.graphics.printf("L to load save", 0, 330, gridWidth * cellSize, "center")
     end
 end
 
@@ -222,6 +272,12 @@ function love.keypressed(key)
             pieceY = pieceY + 1
         elseif key == "up" then
             rotatePiece()
+        end
+
+        if key == "s" then
+            saveGame()
+        elseif key == "l" then
+            loadGame()
         end
     end
 
