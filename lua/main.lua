@@ -59,6 +59,7 @@ function spawnPiece()
     pieceX = math.floor((gridWidth - #currentPiece[1]) / 2) + 1
     if not canMove(0, 0, currentPiece) then
         gameState = "gameover"
+        sounds.lose:play()
     end
 end
 
@@ -75,6 +76,7 @@ function lockPiece()
         end
     end
 
+    sounds.lock:play()
     clearLines()
     spawnPiece()
 end
@@ -111,6 +113,7 @@ function clearLines()
             end
         end
         if full then
+            sounds.score:play()
             lines = lines + 1
         else
             table.insert(newGrid, 1, grid[y])
@@ -196,6 +199,14 @@ function love.load()
     font = love.graphics.newFont(18)
     love.graphics.setFont(font)
     math.randomseed(os.time())
+
+    sounds = {
+        lock = love.audio.newSource("lock.wav", "static"),
+        move = love.audio.newSource("move.wav", "static"),
+        score = love.audio.newSource("score.wav", "static"),
+        lose = love.audio.newSource("lose.wav", "static")
+    }
+
     initGrid()
     spawnPiece()
 end
@@ -207,6 +218,7 @@ function love.update(dt)
             fallTimer = 0
             if canMove(0, 1) then
                 pieceY = pieceY + 1
+                sounds.move:play()
             else
                 lockPiece()
             end
@@ -266,10 +278,13 @@ function love.keypressed(key)
     if gameState == "playing" then
         if key == "left" and canMove(-1, 0) then
             pieceX = pieceX - 1
+            sounds.move:play()
         elseif key == "right" and canMove(1, 0) then
             pieceX = pieceX + 1
+            sounds.move:play()
         elseif key == "down" and canMove(0, 1) then
             pieceY = pieceY + 1
+            sounds.move:play()
         elseif key == "up" then
             rotatePiece()
         end
