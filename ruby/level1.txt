@@ -1,0 +1,10 @@
+platform 0 400 100 20
+platform 375 450 20 40
+moving_platform 200 500 150 20 200 4
+platform 550 400 150 20
+platform 400 275 150 20
+platform 150 175 150 20
+
+enemy 550 350
+enemy 450 225
+enemy 150 125

@@ -39,6 +39,28 @@ on :key_up do |event|
   keys[event.key] = false
 end
 
+def load_level(file_path)
+  $platforms = []
+  $enemies = []
+  $keys = []
+  File.readlines(file_path).each do |line|
+    next if line.strip.empty? || line.strip.start_with?('#')
+    parts = line.strip.split
+    type = parts[0]
+    case type
+      when "platform"
+        x, y, w, h = parts[1..4].map(&:to_i)
+        $platforms << create_static_platform(x: x, y: y, width: w, height: h)
+      when "moving_platform"
+        x, y, w, h, range, speed = parts[1..6].map(&:to_i)
+        $platforms << create_moving_platform(x: x, y: y, width: w, height: h, range: range, speed: speed)
+      when "enemy"
+        x, y = parts[1..2].map(&:to_i)
+        create_enemy(x: x, y: y)
+    end
+  end
+end
+
 def create_static_platform(x:, y:, width:, height:, color: 'white')
   key = Image.new('key.png', x: x + width / 2 - 24, y: y - 48, width: 48, height: 48)
   $keys << key
@@ -160,17 +182,7 @@ def start
       run: 5..8
     }
   )
-  $platforms = [
-    create_static_platform(x: 0, y: 400, width: 100, height: 20),
-    create_static_platform(x: 375, y: 450, width: 20, height: 40),
-    create_moving_platform(x: 200, y: 500, width: 150, height: 20, range: 200, speed: 4),
-    create_static_platform(x: 550, y: 400, width: 150, height: 20),
-    create_static_platform(x: 400, y: 275, width: 150, height: 20),
-    create_static_platform(x: 150, y: 175, width: 150, height: 20)
-  ]
-  create_enemy(x: 550, y: 350)
-  create_enemy(x: 450, y: 225)
-  create_enemy(x: 150, y: 125)
+  load_level("level1.txt")
   $current_scene = "start"
 end
 
