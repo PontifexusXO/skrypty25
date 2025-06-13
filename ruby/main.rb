@@ -25,6 +25,7 @@ $score = 0
 $score_label = nil
 $enemies = []
 $lives = 3
+$is_random = false
 
 keys = {}
 on :key_held do |event|
@@ -32,9 +33,14 @@ on :key_held do |event|
 end
 on :key_up do |event|
   if $current_scene == "menu" && event.key == "return"
+    $is_random = false
     start
   elsif $current_scene == "win" && event.key == "return"
     menu
+  end
+  if $current_scene == "menu" && event.key == "space"
+    $is_random = true
+    start
   end
   keys[event.key] = false
 end
@@ -122,6 +128,53 @@ def move_enemy
   end
 end
 
+def random
+  $platforms = []
+  $enemies = []
+  $keys = []
+  grid_cols = 5
+  grid_rows = 6
+  cell_width = Window.width / grid_cols
+  cell_height = ($GROUND_LEVEL) / grid_rows
+  player_spawned = false
+  platform_count = 12
+  placed = 0
+  occupied_cells = []
+
+  while placed < platform_count
+    col = rand(0...grid_cols)
+    row = rand(0...grid_rows)
+
+    next if occupied_cells.include?([col, row])
+
+    occupied_cells << [col, row]
+    w = cell_width * rand(0.3...1.1)
+    h = 20
+    x = col * cell_width + (cell_width - w) / 2
+    y = 50 + row * cell_height
+
+    if rand < 0.15
+      $platforms << create_moving_platform(x: x, y: y, width: w, height: h, range: rand(100..200), speed: 4)
+    else
+      plat = create_static_platform(x: x, y: y, width: w, height: h)
+      $platforms << plat
+
+      if !player_spawned
+        player_spawned = true
+        $player.x = x + w / 2 - $player.width / 2
+        $player.y = y - $player.height
+        $player_initial_x = $player.x
+        $player_initial_y = $player.y
+      else
+        if rand < 0.3 && !occupied_cells.include?([col, row - 1])
+          create_enemy(x: x + w / 2, y: y - 50)
+        end
+      end
+    end
+    placed += 1
+  end
+end
+
 def menu
   clear
   $current_scene = "menu"
@@ -142,9 +195,17 @@ def menu
   )
   author.x -= author.width / 2
   start_game = Text.new(
-    "Press ENTER to start",
+    "ENTER to start",
     x: Window.width / 2, 
     y: Window.height / 2 + 25,
+    size: 25,
+    color: 'white'
+    )
+  start_game.x -= start_game.width / 2
+  start_game = Text.new(
+    "SPACE to start random level",
+    x: Window.width / 2, 
+    y: Window.height / 2 + 75,
     size: 25,
     color: 'white'
     )
@@ -182,7 +243,12 @@ def start
       run: 5..8
     }
   )
-  load_level("level1.txt")
+
+  if $is_random == false
+    load_level("level1.txt")
+  else
+    random
+  end
   $current_scene = "start"
 end
 
@@ -216,7 +282,7 @@ def win(won: true)
     )
   score.x -= score.width / 2
   menu = Text.new(
-    "Press ENTER to go to menu",
+    "ENTER to go to menu",
     x: Window.width / 2, 
     y: Window.height / 2 + 50,
     size: 25,
