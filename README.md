@@ -32,12 +32,12 @@ Kod: [**lua**](https://github.com/PontifexusXO/skrypty25/tree/main/lua)
 ---
 
 ### Zadanie 4 (Ruby) - Mario w Ruby2d
-❌ 3.0 - Należy stworzyć jeden poziom z przeszkodami oraz dziurami w które
-można wpaść i zginąć: [**commit 1**]()  
-❌ 3.5 - Należy dodać opcję zbierania punktów: [**commit 2**]()  
-❌ 4.0 - Należy dodać przeciwników, których można zabić oraz 3 życia: [**commit 3**]()  
-❌ 4.5 - Ładowanie poziomów z pliku: [**commit 4**]()  
-❌ 5.0 - Generator poziomów: [**commit 5**]()  
+✅ 3.0 - Należy stworzyć jeden poziom z przeszkodami oraz dziurami w które
+można wpaść i zginąć: [**commit 1**](https://github.com/PontifexusXO/skrypty25/commit/d4b4a40fb4b8302d869c3e6177dca8be07258d2d)  
+✅ 3.5 - Należy dodać opcję zbierania punktów: [**commit 2**](https://github.com/PontifexusXO/skrypty25/commit/f63817c7a10fdae02566d98bd47345190cee0035)  
+✅ 4.0 - Należy dodać przeciwników, których można zabić oraz 3 życia: [**commit 3**](https://github.com/PontifexusXO/skrypty25/commit/6d5aef8395dd5bb7cd1616f33b766342a7c86210)  
+✅ 4.5 - Ładowanie poziomów z pliku: [**commit 4**](https://github.com/PontifexusXO/skrypty25/commit/1269c43a4de7aa550215e07616fcbeb2d5f3aae6)  
+✅ 5.0 - Generator poziomów: [**commit 5**](https://github.com/PontifexusXO/skrypty25/commit/ff634ae13139f497421c7fa8c5d58a7ad00c8a7a) + [**commit 6**](https://github.com/PontifexusXO/skrypty25/commit/7a8627a939cf660ce61242040e851ef88230a8a9)  
 
 Kod: [**ruby**](https://github.com/PontifexusXO/skrypty25/tree/main/ruby)  
 
