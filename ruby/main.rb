@@ -137,7 +137,7 @@ def random
   cell_width = Window.width / grid_cols
   cell_height = ($GROUND_LEVEL) / grid_rows
   player_spawned = false
-  platform_count = 12
+  platform_count = 16
   placed = 0
   occupied_cells = []
 
@@ -231,6 +231,8 @@ def start
     size: 20,
     color: 'white',
   )
+  $player_initial_x = 0
+  $player_initial_y = 350
   $player = Sprite.new(
     'player.png',
     clip_width: 24,
