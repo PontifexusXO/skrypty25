@@ -19,10 +19,12 @@ $facing_right = true
 $current_anim = :idle
 $player = nil
 $current_scene = "menu"
-$platforms = nil
+$platforms = []
 $keys = []
 $score = 0
 $score_label = nil
+$enemies = []
+$lives = 3
 
 keys = {}
 on :key_held do |event|
@@ -57,6 +59,47 @@ def create_moving_platform(x:, y:, width:, height:, range:, speed:, color: 'whit
   }
 end
 
+def create_enemy(x:, y:)
+  enemy_sprite = Sprite.new(
+    'enemy.png',
+    clip_width: 30,
+    clip_height: 48,
+    width: 30, height: 48,
+    x: x, y: y,
+    time: 40,
+    animations: {
+      run: 1..4
+    }
+  )
+  $enemies << { sprite: enemy_sprite, direction: -1 }
+end
+
+def move_enemy
+  $enemies.each do |enemy|
+    sprite = enemy[:sprite]
+    direction = enemy[:direction]
+    left_foot_x = sprite.x + 2
+    right_foot_x = sprite.x + sprite.width - 2
+    foot_y = sprite.y + sprite.height + 1
+    left_supported = $platforms.any? do |plat|
+      plat_sprite = plat[:sprite]
+      plat_sprite.y >= foot_y - 5 && plat_sprite.y <= foot_y + 5 &&
+        left_foot_x >= plat_sprite.x && left_foot_x <= plat_sprite.x + plat_sprite.width
+    end
+    right_supported = $platforms.any? do |plat|
+      plat_sprite = plat[:sprite]
+      plat_sprite.y >= foot_y - 5 && plat_sprite.y <= foot_y + 5 &&
+        right_foot_x >= plat_sprite.x && right_foot_x <= plat_sprite.x + plat_sprite.width
+    end
+    unless left_supported && right_supported
+      direction *= -1
+      enemy[:direction] = direction
+    end
+    sprite.x += direction * 2
+    sprite.play animation: :run, loop: true, flip: (direction > 0 ? nil : :horizontal)
+  end
+end
+
 def menu
   clear
   $current_scene = "menu"
@@ -88,9 +131,19 @@ end
 
 def start
   clear
+  $score = 0
+  $keys = []
+  $lives = 3
   $score_label = Text.new(
     "Score: 0",
     x: 24,
+    y: 24,
+    size: 20,
+    color: 'white',
+  )
+  $lives_label = Text.new(
+    "Lives: 3",
+    x: Window.width - 100,
     y: 24,
     size: 20,
     color: 'white',
@@ -115,19 +168,32 @@ def start
     create_static_platform(x: 400, y: 275, width: 150, height: 20),
     create_static_platform(x: 150, y: 175, width: 150, height: 20)
   ]
+  create_enemy(x: 550, y: 350)
+  create_enemy(x: 450, y: 225)
+  create_enemy(x: 150, y: 125)
   $current_scene = "start"
 end
 
-def win
+def win(won: true)
   clear
   $current_scene = "win"
-  title = Text.new(
-    "YOU WON",
-    x: Window.width / 2, 
-    y: Window.height / 2 - 100,
-    size: 50,
-    color: 'white'
+  if won == true
+    title = Text.new(
+      "YOU WON",
+      x: Window.width / 2, 
+      y: Window.height / 2 - 100,
+      size: 50,
+      color: 'green'
+    )
+  else
+    title = Text.new(
+      "YOU LOST",
+      x: Window.width / 2, 
+      y: Window.height / 2 - 100,
+      size: 50,
+      color: 'red'
   )
+  end
   title.x -= title.width / 2
   score = Text.new(
     "Score: #{$score}",
@@ -145,8 +211,6 @@ def win
     color: 'white'
     )
   menu.x -= menu.width / 2
-  $score = 0
-  $keys = []
 end
 
 def aabb_collision?(a, b)
@@ -158,6 +222,31 @@ end
 
 update do
   if $current_scene == "start"
+    $enemies.reject! do |enemy|
+      sprite = enemy[:sprite]
+      if aabb_collision?($player, sprite)
+        if $player.y + $player.height - 10 < sprite.y
+          $player_velocity[:y] = $JUMP_POWER / 1.5
+          sprite.remove
+          $score += 5
+          $score_label.text = "Score: #{$score}"
+          true
+        else
+          $lives -= 1
+          $lives_label.text = "Lives: #{$lives}"
+          $player.x = $player_initial_x
+          $player.y = $player_initial_y
+          $player_velocity[:x] = 0
+          $player_velocity[:y] = 0
+          win(won: false) if $lives <= 0
+          false
+        end
+      else
+        false
+      end
+    end
+    move_enemy
+
     $player_velocity[:x] = 0
     $moving = false
     if keys['left']
@@ -219,7 +308,7 @@ update do
     $keys.reject! do |key|
     if $player.x < key.x + key.width && $player.x + $player.width > key.x && $player.y < key.y + key.height && $player.y + $player.height > key.y
         key.remove
-        $score += 1
+        $score += 10
         $score_label.text = "Score: #{$score}"
         true
       else
@@ -236,6 +325,11 @@ update do
       $player.y = $player_initial_y
       $player_velocity[:x] = 0
       $player_velocity[:y] = 0
+      $lives = $lives - 1
+      $lives_label.text = "Lives: #{$lives}"
+      if $lives == 0
+        win(won: false)
+      end
     end
   end
 end
