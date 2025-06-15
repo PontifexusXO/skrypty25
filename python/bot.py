@@ -61,7 +61,7 @@ async def tournament_teams(interaction: discord.Interaction):
 async def tournament_teams(interaction: discord.Interaction, player: str, team: str):
     await interaction.response.defer(thinking=True)
     prompt = (
-        f"Add player {player} to team {team} and remember them. Give no output."
+        f"Add player {player} to team {team} and remember them. Output should say, what player was added, to what team and his number in his team."
     )
     result = query_ollama(prompt)
     await interaction.followup.send(result[:2000])
