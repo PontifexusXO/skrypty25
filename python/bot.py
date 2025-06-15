@@ -66,6 +66,15 @@ async def tournament_teams(interaction: discord.Interaction, player: str, team: 
     result = query_ollama(prompt)
     await interaction.followup.send(result[:2000])
 
+@tree.command(name="tournament", description="List all info about current tournament")
+async def tournament_teams(interaction: discord.Interaction):
+    await interaction.response.defer(thinking=True)
+    prompt = (
+        "List every team, state of previous and current games, and every player taking part in this tournament."
+    )
+    result = query_ollama(prompt)
+    await interaction.followup.send(result[:2000])
+
 @client.event
 async def on_ready():
     await tree.sync()
