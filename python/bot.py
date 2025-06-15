@@ -57,6 +57,15 @@ async def tournament_teams(interaction: discord.Interaction):
     result = query_ollama(prompt)
     await interaction.followup.send(result[:2000])
 
+@tree.command(name="add_player", description="Adds specified player to specified team")
+async def tournament_teams(interaction: discord.Interaction, player: str, team: str):
+    await interaction.response.defer(thinking=True)
+    prompt = (
+        f"Add player {player} to team {team} and remember them. Give no output."
+    )
+    result = query_ollama(prompt)
+    await interaction.followup.send(result[:2000])
+
 @client.event
 async def on_ready():
     await tree.sync()
