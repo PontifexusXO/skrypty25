@@ -44,13 +44,13 @@ Kod: [**ruby**](https://github.com/PontifexusXO/skrypty25/tree/main/ruby)
 ---
 
 ### Zadanie 5 (Python) - Czatbot eSport LLM (Discord + Ollama)
-❌ 3.0 - Nalezy zaimplementować minimum 3 ścieżki (prompt chains) turnieju
-e-sportowego: [**commit 1**]()  
-❌ 3.5 - Bot wyświetla listę dostępnych rozgrywek: [**commit 2**]()  
-❌ 4.0 - Bot dodaje zawodnika do rozgrywki: [**commit 3**]()  
-❌ 4.5 - Bot potwierdza dodanie zawodnika wraz z numerem oraz szczegółami turnieju: [**commit 4**]()  
-❌ 5.0 - Bot wyświetla wszystkie drużyny, stan rozgrywek oraz wszystkich
-zawodników w rozgrywkach: [**commit 5**]()  
+✅ 3.0 - Nalezy zaimplementować minimum 3 ścieżki (prompt chains) turnieju
+e-sportowego: [**commit 1**](https://github.com/PontifexusXO/skrypty25/commit/7a4802c52baf91c831fb30878c747cd26c09d93a)  
+✅ 3.5 - Bot wyświetla listę dostępnych rozgrywek: [**commit 2**](https://github.com/PontifexusXO/skrypty25/commit/068eaaea4731cf0a27a0a32b875c0efd1e9ae180)  
+✅ 4.0 - Bot dodaje zawodnika do rozgrywki: [**commit 3**](https://github.com/PontifexusXO/skrypty25/commit/c93ddf844ca56802d8237b3c1e15b6d19edea8f4)  
+✅ 4.5 - Bot potwierdza dodanie zawodnika wraz z numerem oraz szczegółami turnieju: [**commit 4**](https://github.com/PontifexusXO/skrypty25/commit/e705bbdda9ea82b6630cbdf73c68812ded403ab6)  
+✅ 5.0 - Bot wyświetla wszystkie drużyny, stan rozgrywek oraz wszystkich
+zawodników w rozgrywkach: [**commit 5**](https://github.com/PontifexusXO/skrypty25/commit/76ced3d0f343fdded0aefeb8c64de20f5f0d055b)  
 
 Kod: [**python**](https://github.com/PontifexusXO/skrypty25/tree/main/python)  
 
