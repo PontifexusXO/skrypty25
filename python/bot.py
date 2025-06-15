@@ -4,19 +4,19 @@ import ollama
 import re
 
 TOKEN = "DISCORD BOT TOKEN"
-MODEL = "deepseek-r1:8b"
+MODEL = "deepseek-r1:14b"
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-conversation = {"role": "user", "content": "These are your previous replies. Take them into account when answering last prompt: "}
+conversation = {"role": "user", "content": "Output only pure answers, being shorter than 2000 characters each. Take these previous replies into context when answering the last prompt: "}
 
 def query_ollama(prompt):
-    temp = conversation.copy()
-    temp["content"] += prompt
-    response = ollama.chat(model=MODEL, messages=[temp])
+    conversation["content"] += prompt
+    response = ollama.chat(model=MODEL, messages=[conversation])
     result = re.sub(r"<think>.*?</think>", "", response["message"]["content"], flags=re.DOTALL).strip()
+    conversation["content"] += "<- this prompt gave this result: "
     conversation["content"] += result
     conversation["content"] += " "
     return result
@@ -25,25 +25,34 @@ def query_ollama(prompt):
 async def setup_tournament(interaction: discord.Interaction, game: str):
     await interaction.response.defer(thinking=True)
     prompt = (
-        f"Create a real, but fictional {game} esports tournament. Give a name and short backstory for the event, as well as prize in EUR. Keep it short, under 2000 characters. Dont output character number."
+        f"Create a real {game} esports tournament. Give it a name and short backstory, as well as prize in EUR. Keep the output short."
     )
     result = query_ollama(prompt)
     await interaction.followup.send(result[:2000])
 
-@tree.command(name="rules", description="Define rules and match format")
-async def tournament_rules(interaction: discord.Interaction):
+@tree.command(name="rules", description="Define rules and match format of created tournament")
+async def tournament_rules(interaction: discord.Interaction, team_count: int):
     await interaction.response.defer(thinking=True)
     prompt = (
-        "Define the match format (BO3, BO5) and depending on the game include map pool or not. Add sufficient number of teams and provide their names. Build brackets from those teams. Keep it short, under 2000 characters. Dont output character number."
+        f"Define the match format (BO3 or BO5). Add {team_count} teams. Provide their names. Build brackets for those teams. Keep the output short."
     )
     result = query_ollama(prompt)
     await interaction.followup.send(result[:2000])
 
-@tree.command(name="progress", description="Progress previously created torunaments")
+@tree.command(name="progress", description="Progress created torunament")
 async def tournament_teams(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     prompt = (
-        f"Progress each current torunament with one stage. Describe every stage of currently created tournaments (winners, losers, current brackets). Keep it short, under 2000 characters. Dont output character number."
+        "Progress current tournament with one stage. After that, describe current stage (winners, losers, current brackets). Keep the output short."
+    )
+    result = query_ollama(prompt)
+    await interaction.followup.send(result[:2000])
+
+@tree.command(name="list", description="List all current games in tournament")
+async def tournament_teams(interaction: discord.Interaction):
+    await interaction.response.defer(thinking=True)
+    prompt = (
+        "List all current (or soon to be played) games in the tournament. Keep the output short."
     )
     result = query_ollama(prompt)
     await interaction.followup.send(result[:2000])
